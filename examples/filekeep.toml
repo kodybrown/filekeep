@@ -1,0 +1,16 @@
+[[entries]]
+id = "hosts"
+destination = '${HOME}/Documents/Settings/(files)/HOSTS file'
+filename = '${HOST}-HOSTS-${date:yyyyMMdd}.txt'
+skip_if_unchanged = true
+[entries.source]
+type = "hosts_file"
+
+[[entries]]
+id = "environment"
+destination = '${HOME}/Documents/Settings/(files)/Environment Variables'
+filename = '${HOST}-ENVARS-${date:yyyyMMdd}.txt'
+skip_if_unchanged = true
+[entries.source]
+type = "environment"
+scopes = ["machine", "user"]

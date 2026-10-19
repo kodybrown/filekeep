@@ -1,0 +1,38 @@
+[package]
+name = "filekeep"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.95"
+description = "Keep versioned copies of files and environment settings"
+license = "MIT"
+authors = ["Kody Brown"]
+
+[workspace]
+members = ["power_code"]
+resolver = "3"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+fs2 = "0.4"
+power_code = { path = "power_code" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+tempfile = "3"
+
+[target.'cfg(windows)'.dependencies]
+winreg = "0.56"
+
+[dev-dependencies]
+chrono = "0.4"
+
+[profile.release]
+lto = "thin"
+strip = true
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[lints]
+workspace = true

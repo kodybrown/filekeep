@@ -1,0 +1,17 @@
+# Each entry has its own destination, filename template, and duplicate policy.
+# Relative paths resolve against this settings file, not the working directory.
+entries:
+  - id: hosts
+    source:
+      type: hosts_file
+    destination: '${HOME}/Documents/Settings/(files)/HOSTS file'
+    filename: '${HOST}-HOSTS-${date:yyyyMMdd}.txt'
+    skip_if_unchanged: true
+
+  - id: environment
+    source:
+      type: environment
+      scopes: [machine, user]
+    destination: '${HOME}/Documents/Settings/(files)/Environment Variables'
+    filename: '${HOST}-ENVARS-${date:yyyyMMdd}.txt'
+    skip_if_unchanged: true
