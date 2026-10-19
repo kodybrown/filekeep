@@ -16,10 +16,66 @@ cargo run --release --locked
 cargo run --release --locked -- --config-file 'C:\path\other-settings.toml'
 ```
 
-The executable is `target/release/filekeep.exe` on Windows (`filekeep` elsewhere).
+Cargo outputs are configured in `.cargo/config.toml`, normally under
+`C:/tmp/_rust/filekeep/target` on Windows or `/tmp/_rust/filekeep/target` on Unix.
+Use Cargo's evaluated `target_directory`; the executable is under its `release`
+directory as `filekeep.exe` on Windows (`filekeep` elsewhere).
 The included `filekeep.yaml` carries forward both older apps' destinations and
 date-based filenames. Preview it with `--dry-run` before a normal run. On Unix,
 change the environment entry's scopes to `[process]`.
+
+## Self-extracting installer
+
+```powershell
+cd "$HOME\Projects\doinstall"
+.\build.cmd build
+cd "$HOME\Projects\filekeep"
+dotask create-filekeep-installer
+```
+
+The first command prepares matching doinstall tools after source updates; the
+filekeep task only consumes prebuilt tools and never installs or builds doinstall
+implicitly. It verifies/builds filekeep and produces one self-extracting setup
+executable under `artifacts/installers/`, reporting its actual path. Runtime
+installation needs neither dotask nor Cargo. Build and install are separate steps.
+
+The installer includes the default YAML with hosts and machine/user environment
+entries. Its interactive form lets the user select a backup folder and filename
+template separately for each entry, plus ordinary application/PATH choices.
+Both entries default to `skip_if_unchanged: true`. Filename templates remain
+literal until filekeep runs. Installation does not run backups.
+
+Settings are created at `$XDG_CONFIG_HOME/filekeep/settings.yaml`, defaulting to
+`~/.config/filekeep/settings.yaml`, which normal configuration discovery finds.
+The bundled example lives under `defaults/`, away from the executable so it cannot
+shadow mutable user settings. Existing settings are preserved byte-for-byte on
+install/upgrade; changing installer field values does not overwrite them. Edit the
+existing YAML to change an established setup. Uninstall keeps settings by default;
+actual backups are never installer-owned.
+
+The task derives the version from Cargo. Use `--app-version` or `--build-stamp`
+for an explicit package version/stamp. `.dotasks.yaml` selects the sibling doinstall
+source checkout only to query Cargo's output for prebuilt native tools. Supply
+`--doinstall-tools C:/path/to/tools` to use another matching tool set. Removing
+`settings.doinstall.source` uses the installed builder's tool-path discovery.
+Task adapters are tracked in `.dotasks-lock.yaml` for normal dotask synchronization.
+
+To repeat Windows package acceptance without changing your active installation:
+
+```powershell
+dotask verify-installer --installer 'C:\path\reported-filekeep-setup.exe'
+```
+
+This uses temporary application/configuration/backup directories, checks persistent
+PATH before and after, and exercises extraction, validation, custom outputs,
+installed command discovery, duplicate skips, lock cleanup, reinstall, a distinct
+upgrade package identity, and uninstall with retained settings/backups.
+
+Unattended setup accepts the same values through doinstall's `--set` inputs:
+`hosts-output-directory`, `hosts-filename`, `environment-output-directory`, and
+`environment-filename`. To forward installer arguments through the self-extracting
+launcher, place them after `--`. Pass `--set add-to-path=false` during isolated
+acceptance, and use temporary application/configuration/command directories.
 
 ## Settings
 
@@ -134,7 +190,10 @@ is preserved under its numbered name before the new base is atomically published
 on supported filesystems a hard link avoids another copy, with an exclusive-copy
 fallback elsewhere. This keeps the base present during publication and prevents
 overwriting existing archives. A destination lock coordinates filekeep processes;
-a busy destination fails its entries so they can be retried later. Output paths
+Windows uses an exclusive delete-on-close marker, and Unix locks the existing
+`.filekeep` directory. No lock marker remains after the owning process exits,
+including process termination. JSON state files intentionally remain.
+A busy destination fails its entries so they can be retried later. Output paths
 that alias this run's settings, another entry's output, or a configured file
 source are rejected. Existing output symlinks and directories are rejected.
 

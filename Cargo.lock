@@ -279,7 +279,6 @@ dependencies = [
  "anyhow",
  "chrono",
  "clap",
- "fs2",
  "power_code",
  "serde",
  "serde_json",
@@ -502,6 +501,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "chrono",
+ "fs2",
  "hostname",
  "quick-xml",
  "same-file",
@@ -510,6 +510,7 @@ dependencies = [
  "serde_json",
  "tempfile",
  "toml",
+ "windows-sys",
 ]
 
 [[package]]

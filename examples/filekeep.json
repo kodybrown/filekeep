@@ -3,14 +3,14 @@
     {
       "id": "hosts",
       "source": { "type": "hosts_file" },
-      "destination": "${HOME}/Documents/Settings/(files)/HOSTS file",
+      "destination": "${HOME}/Documents/Settings-Windows/Files/HOSTS file",
       "filename": "${HOST}-HOSTS-${date:yyyyMMdd}.txt",
       "skip_if_unchanged": true
     },
     {
       "id": "environment",
       "source": { "type": "environment", "scopes": ["machine", "user"] },
-      "destination": "${HOME}/Documents/Settings/(files)/Environment Variables",
+      "destination": "${HOME}/Documents/Settings-Windows/Files/Environment Variables",
       "filename": "${HOST}-ENVARS-${date:yyyyMMdd}.txt",
       "skip_if_unchanged": true
     }

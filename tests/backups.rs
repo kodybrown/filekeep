@@ -282,20 +282,13 @@ fn invalid_existing_state_is_preserved_and_blocks_only_its_entry() {
 
 #[test]
 fn another_process_destination_lock_prevents_backup_mutations() {
-    use fs2::FileExt;
+    use power_code::locking::DirectoryLock;
     let directory = tempfile::tempdir().unwrap();
     let config = config_file(directory.path());
     fs::write(directory.path().join("input"), "new").unwrap();
     let lock_dir = directory.path().join("backups/.filekeep");
     fs::create_dir_all(&lock_dir).unwrap();
-    let lock = fs::OpenOptions::new()
-        .read(true)
-        .write(true)
-        .create(true)
-        .truncate(false)
-        .open(lock_dir.join("lock"))
-        .unwrap();
-    lock.try_lock_exclusive().unwrap();
+    let lock = DirectoryLock::try_acquire(&lock_dir).unwrap();
     let settings = Settings {
         entries: vec![entry("one", "input", "backups", "current")],
     };

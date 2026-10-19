@@ -15,3 +15,8 @@
 - Before committing scoped work, run `cargo fmt --all -- --check`,
   `cargo clippy --workspace --all-targets --locked -- -D warnings`,
   `cargo test --workspace --locked`, and `cargo build --release --locked`.
+- `dotask build` verifies task formatting plus the application checks and builds
+  the native installer payload. `dotask create-filekeep-installer` uses prebuilt
+  doinstall tools; never install/update doinstall or PATH implicitly.
+- Use `dotask verify-installer --installer <reported-artifact>` for Windows
+  acceptance. Keep its application, config, and backup destinations temporary.

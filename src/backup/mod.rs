@@ -1,12 +1,12 @@
 mod state;
 
-use std::fs::{self, File, OpenOptions};
+use std::fs::{self, File};
 use std::io;
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result, bail};
-use fs2::FileExt;
 use power_code::file_io::{files_equal, next_archive, publish_with_history, readers_equal};
+use power_code::locking::DirectoryLock;
 use power_code::paths::{paths_alias, resolved_path};
 use power_code::templates::TemplateContext;
 use tempfile::NamedTempFile;
@@ -137,16 +137,7 @@ fn execute(
 
     fs::create_dir_all(&state_directory)
         .with_context(|| format!("Cannot create destination {}", entry.destination.display()))?;
-    // Lock one destination across all configs/entries. A persistent lock file
-    // avoids the inode race caused by deleting a lock file after unlocking it.
-    let lock = OpenOptions::new()
-        .read(true)
-        .write(true)
-        .create(true)
-        .truncate(false)
-        .open(state_directory.join("lock"))?;
-    lock.try_lock_exclusive()
-        .context("Destination is in use by another filekeep process; retry after it finishes")?;
+    let _lock = DirectoryLock::try_acquire(&state_directory)?;
     let previous = state::read(&state_file, &entry.destination)?;
     let mut source = sources::open(&entry.source)?;
     let mut staged = NamedTempFile::new_in(&entry.destination)?;

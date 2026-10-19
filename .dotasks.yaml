@@ -1,0 +1,14 @@
+version: 1
+name: filekeep
+description: Versioned file and environment backups.
+settings:
+  app:
+    git-hash: short
+    dirty-suffix: true
+  installer:
+    config: .tasks/installer.yaml
+    output: artifacts/installers
+  doinstall:
+    # Query this checkout's Cargo output for prebuilt tools; never build/install
+    # doinstall implicitly while creating an application package.
+    source: ../doinstall

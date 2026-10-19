@@ -17,8 +17,10 @@ duplicate policy, retention policy, or command-line settings override.
 | BackupHostsFile | `backup_dir` | `${HOME}/Documents/Settings/(files)/HOSTS file/` |
 | BackupHostsFile | `file_format` | `${HOST}-HOSTS-${date:yyyyMMdd}.txt` |
 
-The source and published YAML values agree. The initial filekeep YAML retains these
+The source and published YAML values agree. The first filekeep YAML retained these
 destinations and naming templates in independent `environment` and `hosts` entries.
+The current sample uses the user-selected `Documents/Settings-Windows/Files/`
+destinations; installer defaults follow that current sample.
 The old flat configuration is not a supported filekeep schema; no migration or
 compatibility loader is included.
 

@@ -3,7 +3,7 @@
   <entries>
     <id>hosts</id>
     <source><type>hosts_file</type></source>
-    <destination>${HOME}/Documents/Settings/(files)/HOSTS file</destination>
+    <destination>${HOME}/Documents/Settings-Windows/Files/HOSTS file</destination>
     <filename>${HOST}-HOSTS-${date:yyyyMMdd}.txt</filename>
     <skip_if_unchanged>true</skip_if_unchanged>
   </entries>
@@ -14,7 +14,7 @@
       <scopes>machine</scopes>
       <scopes>user</scopes>
     </source>
-    <destination>${HOME}/Documents/Settings/(files)/Environment Variables</destination>
+    <destination>${HOME}/Documents/Settings-Windows/Files/Environment Variables</destination>
     <filename>${HOST}-ENVARS-${date:yyyyMMdd}.txt</filename>
     <skip_if_unchanged>true</skip_if_unchanged>
   </entries>

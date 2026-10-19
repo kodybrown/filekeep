@@ -19,5 +19,11 @@ serde-saphyr = { version = "2", default-features = false, features = ["deseriali
 tempfile = "3"
 toml = "1"
 
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_Storage_FileSystem"] }
+
+[target.'cfg(unix)'.dependencies]
+fs2 = "0.4"
+
 [lints]
 workspace = true

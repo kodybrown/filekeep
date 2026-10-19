@@ -1,0 +1,68 @@
+schema: 1
+application:
+  id: filekeep
+  name: filekeep
+  author: Kody Brown
+  copyright: Copyright (C) 2026 Kody Brown
+  description: Keep versioned copies of files and environment settings.
+build-steps:
+  - run: build
+    with:
+      stage-dir: '${staging}/app'
+    gather:
+      - from: '${staging}/app'
+        files: ['filekeep${exe-extension}', 'defaults/**', 'LICENSE.txt']
+        to: .
+  - run: _/doinstall/assemble-self-extracting
+    with:
+      builder: '${builder}'
+      installer: '${installer}'
+      launcher-template: '${launcher-template}'
+      config: '${config}'
+      output: '${package}'
+      result-file: '${result-file}'
+runtime:
+  interactive: true
+  commands:
+    - name: filekeep
+      executable: 'filekeep${exe-extension}'
+  defaults:
+    windows:
+      add-to-path: true
+  inputs:
+    hosts-output-directory:
+      type: path
+      required: true
+      prompt: Hosts backup folder
+      default: '${home}/Documents/Settings-Windows/Files/HOSTS file'
+      group-index: 4
+    hosts-filename:
+      type: string
+      expand: false
+      required: true
+      prompt: Hosts filename template
+      default: '${HOST}-HOSTS-${date:yyyyMMdd}.txt'
+      group-index: 4
+    environment-output-directory:
+      type: path
+      required: true
+      prompt: Environment backup folder
+      default: '${home}/Documents/Settings-Windows/Files/Environment Variables'
+      group-index: 5
+    environment-filename:
+      type: string
+      expand: false
+      required: true
+      prompt: Environment filename template
+      default: '${HOST}-ENVARS-${date:yyyyMMdd}.txt'
+      group-index: 5
+  settings-files:
+    - source: defaults/filekeep.yaml
+      destination: '${config-home}/filekeep/settings.yaml'
+      format: yaml
+      if-exists: preserve
+      set:
+        /entries/0/destination: hosts-output-directory
+        /entries/0/filename: hosts-filename
+        /entries/1/destination: environment-output-directory
+        /entries/1/filename: environment-filename

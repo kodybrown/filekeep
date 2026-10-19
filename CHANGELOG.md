@@ -1,5 +1,31 @@
 # Changelog
 
+## Unreleased
+
+### 2026-10-19 Add a configurable self-extracting installer and transient locks
+
+- Add dotask build/create-filekeep-installer tasks and tracked doinstall adapters
+  to produce one native self-extracting setup executable from verified payloads
+  and separately supplied prebuilt doinstall tools. Query evaluated Cargo paths;
+  keep generated build output external and package artifacts ignored.
+- Bundle hosts/environment defaults and offer independent backup-folder and
+  filename-template fields. Initialize discoverable XDG settings through
+  doinstall's reusable settings-files feature, preserve application template
+  tokens, and leave existing settings unchanged on reinstall/upgrade. Defaults
+  stay under defaults/ instead of shadowing editable settings beside the exe.
+- Replace persistent backup lock markers with Windows exclusive delete-on-close
+  handles and Unix directory locks. Preserve concurrency protection while
+  releasing locks on normal/error exits and abrupt process termination.
+- Align JSON/XML/TOML examples with the current user-selected YAML destinations;
+  document the external Cargo output policy, installer workflow, configuration
+  ownership, and reproducible temporary-root package acceptance.
+- Verification: 31 filekeep/PowerCode tests, formatting, strict Clippy, native
+  static-runtime Windows release build, and actual dotask package creation pass.
+  verify-installer exercises self-extraction, read-only validation, custom outputs,
+  installed config discovery, byte-match skips, lock cleanup, reinstall, a distinct
+  upgrade identity, and uninstall preserving settings/backups; persistent user and
+  machine PATH are unchanged. Native Unix installer acceptance is unverified.
+
 ## 0.1.0 - 2026-10-19
 
 - Combine BackupHostsFile and BackupEnvars in the Rust `filekeep` CLI, with
