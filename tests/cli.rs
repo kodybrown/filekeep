@@ -85,6 +85,7 @@ fn cwd_discovery_and_explicit_missing_config_never_fall_back() {
 }
 
 #[test]
+#[cfg(not(windows))]
 fn xdg_discovery_uses_app_directory_and_invalid_relative_xdg_uses_home() {
     let directory = tempfile::tempdir().unwrap();
     let cwd = directory.path().join("cwd");
@@ -103,6 +104,7 @@ fn xdg_discovery_uses_app_directory_and_invalid_relative_xdg_uses_home() {
     let output = success(
         command(&cwd)
             .env("XDG_CONFIG_HOME", &xdg)
+            .env("APPDATA", directory.path().join("unused-appdata"))
             .arg("--dry-run")
             .output()
             .unwrap(),
@@ -122,12 +124,65 @@ fn xdg_discovery_uses_app_directory_and_invalid_relative_xdg_uses_home() {
     let output = success(
         command(&cwd)
             .env("XDG_CONFIG_HOME", "relative/path")
-            .env(if cfg!(windows) { "USERPROFILE" } else { "HOME" }, &home)
+            .env("HOME", &home)
             .arg("--dry-run")
             .output()
             .unwrap(),
     );
     assert!(output.contains("1 planned, 0 failed"));
+}
+
+#[test]
+#[cfg(windows)]
+fn windows_discovery_uses_roaming_appdata_and_ignores_xdg() {
+    let directory = tempfile::tempdir().unwrap();
+    let cwd = directory.path().join("cwd");
+    let roaming = directory.path().join("roaming");
+    let home = directory.path().join("home");
+    let xdg = directory.path().join("xdg");
+    fs::create_dir(&cwd).unwrap();
+    // Invalid legacy settings must never be loaded, even when XDG is absolute.
+    for root in [&xdg, &home.join(".config")] {
+        let app = root.join("filekeep");
+        fs::create_dir_all(&app).unwrap();
+        fs::write(app.join("settings.yaml"), "invalid: [").unwrap();
+    }
+    for root in [&roaming, &home.join("AppData/Roaming")] {
+        let app = root.join("filekeep");
+        fs::create_dir_all(&app).unwrap();
+        fs::write(app.join("input"), "bytes").unwrap();
+        fs::write(
+            app.join("settings.yaml"),
+            serde_json::to_vec(&settings("input", "backups", "latest")).unwrap(),
+        )
+        .unwrap();
+    }
+    for override_value in [
+        Some(roaming.as_os_str()),
+        None,
+        Some(std::ffi::OsStr::new("")),
+        Some(std::ffi::OsStr::new("relative/path")),
+    ] {
+        let mut child = command(&cwd);
+        child.env("USERPROFILE", &home).env("XDG_CONFIG_HOME", &xdg);
+        if let Some(value) = override_value {
+            child.env("APPDATA", value);
+        } else {
+            child.env_remove("APPDATA");
+        }
+        let output = success(child.arg("--dry-run").output().unwrap());
+        let expected = if override_value == Some(roaming.as_os_str()) {
+            roaming.join("filekeep/settings.yaml")
+        } else {
+            home.join("AppData/Roaming/filekeep/settings.yaml")
+        }
+        .canonicalize()
+        .unwrap();
+        assert!(output.contains(expected.to_str().unwrap()), "{output}");
+        assert!(output.contains("1 planned, 0 failed"));
+    }
+    assert!(!roaming.join("filekeep/backups").exists());
+    assert!(!home.join("AppData/Roaming/filekeep/backups").exists());
 }
 
 #[test]

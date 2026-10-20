@@ -45,8 +45,10 @@ template separately for each entry, plus ordinary application/PATH choices.
 Both entries default to `skip_if_unchanged: true`. Filename templates remain
 literal until filekeep runs. Installation does not run backups.
 
-Settings are created at `$XDG_CONFIG_HOME/filekeep/settings.yaml`, defaulting to
-`~/.config/filekeep/settings.yaml`, which normal configuration discovery finds.
+On Windows, settings are created at `%APPDATA%\filekeep\settings.yaml` (Roaming
+AppData). Linux and macOS use `$XDG_CONFIG_HOME/filekeep/settings.yaml`, defaulting
+to `~/.config/filekeep/settings.yaml`. Normal configuration discovery finds these
+platform-specific locations.
 The bundled example lives under `defaults/`, away from the executable so it cannot
 shadow mutable user settings. Existing settings are preserved byte-for-byte on
 install/upgrade; changing installer field values does not overwrite them. Edit the
@@ -126,18 +128,23 @@ and never falls back if it is missing or invalid. Without it, search in order:
 
 1. Working directory: `<executable-stem>.yaml`, `.yml`, `.json`, `.xml`, `.toml`.
 2. Executable directory: the same names.
-3. `$XDG_CONFIG_HOME/filekeep/settings.yaml`; when unset, empty, or relative,
-   use `<home>/.config/filekeep/settings.yaml`.
+3. Windows: `%APPDATA%\filekeep\settings.yaml`; when `APPDATA` is unset, empty,
+   or relative, use `%USERPROFILE%\AppData\Roaming\filekeep\settings.yaml`.
+   Linux/macOS: `$XDG_CONFIG_HOME/filekeep/settings.yaml`; when unset, empty, or
+   relative, use `$HOME/.config/filekeep/settings.yaml`.
 
-This XDG convention applies on Windows too, with `USERPROFILE` as home; Unix uses
-`HOME`. The app-specific fallback directory is always `filekeep`, even if the
-executable is renamed. For example, `work-settings.exe` first searches for
+Windows ignores `XDG_CONFIG_HOME`; Linux/macOS ignore `APPDATA`. The app-specific
+fallback directory is always `filekeep`, even if the executable is renamed.
+For example, `work-settings.exe` first searches for
 `work-settings.yaml` and the other extensions.
+
+Existing Windows settings in an XDG directory are not moved automatically. Move
+the file into `%APPDATA%\filekeep\settings.yaml` or select it with `--config-file`.
 
 If multiple supported formats exist in the first matching directory, select one
 explicitly with `--config-file`. An invalid selected file is an error; the app
 does not silently load a lower-priority file. Only `settings.yaml` is searched at
-the XDG fallback; other formats there can be selected explicitly.
+the platform-specific fallback; other formats there can be selected explicitly.
 
 ### Templates
 

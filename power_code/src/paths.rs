@@ -14,6 +14,25 @@ pub fn home_directory() -> Result<PathBuf> {
     Ok(home)
 }
 
+/// Use roaming AppData on Windows and XDG configuration on Linux/macOS.
+/// Ignore the other platform's override, and reject empty/relative roots so
+/// discovery cannot accidentally depend on the current working directory.
+pub fn configuration_directory() -> Result<PathBuf> {
+    let (key, fallback) = if cfg!(windows) {
+        ("APPDATA", "AppData/Roaming")
+    } else {
+        ("XDG_CONFIG_HOME", ".config")
+    };
+    match std::env::var_os(key)
+        .filter(|value| !value.is_empty())
+        .map(PathBuf::from)
+        .filter(|path| path.is_absolute())
+    {
+        Some(path) => Ok(path),
+        None => Ok(home_directory()?.join(fallback)),
+    }
+}
+
 /// Lexical normalization works for destinations that do not exist yet.
 pub fn absolute_from(path: &Path, base: &Path) -> Result<PathBuf> {
     // C:relative and \root-relative depend on hidden per-drive/CWD state on

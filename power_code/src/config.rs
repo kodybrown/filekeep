@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 use anyhow::{Context, Result, bail};
 use serde::de::DeserializeOwned;
 
-use crate::paths::{absolute_from, home_directory};
+use crate::paths::{absolute_from, configuration_directory};
 
 const EXTENSIONS: &[&str] = &["yaml", "yml", "json", "xml", "toml"];
 
@@ -72,15 +72,9 @@ pub fn discover(
             ),
         }
     }
-    let xdg = match std::env::var_os("XDG_CONFIG_HOME")
-        .filter(|v| !v.is_empty())
-        .map(PathBuf::from)
-        .filter(|p| p.is_absolute())
-    {
-        Some(path) => path,
-        None => home_directory()?.join(".config"),
-    };
-    let fallback = xdg.join(application).join("settings.yaml");
+    let fallback = configuration_directory()?
+        .join(application)
+        .join("settings.yaml");
     if fallback.is_file() {
         return Ok(fallback);
     }

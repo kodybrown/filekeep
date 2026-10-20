@@ -18,7 +18,10 @@ fn run(executable: &Path, arguments: &[String], cwd: &Path, config_home: &Path) 
     let result = Command::new(executable)
         .args(arguments)
         .current_dir(cwd)
-        .env("XDG_CONFIG_HOME", config_home)
+        .env("APPDATA", config_home)
+        // Keep the obsolete Windows XDG location separate: acceptance must prove
+        // that both installation and application discovery use roaming AppData.
+        .env("XDG_CONFIG_HOME", config_home.join("unused-xdg"))
         .output()?;
     if !result.status.success() {
         dotask_sdk::bail!(
@@ -193,6 +196,9 @@ fn task(project: &BuildContext) -> Result<()> {
         || !backups.join("environment").is_dir()
     {
         dotask_sdk::bail!("Uninstall did not preserve settings and backups");
+    }
+    if config_home.join("unused-xdg").exists() {
+        dotask_sdk::bail!("Windows installation or discovery used XDG_CONFIG_HOME");
     }
     if paths()? != before {
         dotask_sdk::bail!("Persistent user/machine PATH changed during acceptance");

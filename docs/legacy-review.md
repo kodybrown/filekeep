@@ -28,7 +28,7 @@ compatibility loader is included.
 
 | Original behavior | filekeep behavior |
 | --- | --- |
-| Exe-name YAML, current directory before executable directory | Exe-stem settings in YAML/YML/JSON/XML/TOML, then app-specific XDG `settings.yaml`; explicit `--config-file` bypasses discovery. |
+| Exe-name YAML, current directory before executable directory | Exe-stem settings in YAML/YML/JSON/XML/TOML, then app-specific `settings.yaml` under roaming AppData on Windows or XDG on Linux/macOS; explicit `--config-file` bypasses discovery. |
 | Hosts app repeats current-directory checks instead of checking executable directory | Search both actual directories. |
 | Home/host aliases, four environment syntaxes, three date syntaxes | Retained; explicit errors for unresolved/cyclic tokens. |
 | Any .NET date format | Explicit common-token subset: yyyy, yy, MM, dd, HH, mm, ss, fff. |

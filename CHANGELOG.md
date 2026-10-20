@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### 2026-10-20 Use platform-specific settings directories
+
+- Discover and install settings in `%APPDATA%\filekeep\settings.yaml` on Windows,
+  falling back to `%USERPROFILE%\AppData\Roaming` for an unavailable, empty, or
+  relative `APPDATA`. Linux/macOS retain absolute `XDG_CONFIG_HOME` or
+  `$HOME/.config`. Explicit configuration and working/executable-directory
+  precedence remain unchanged.
+- Use doinstall's reusable `app-data` template and isolate Windows installer
+  acceptance under temporary roaming AppData with a separate XDG location.
+- Verification: formatting, strict Clippy, all 31 Windows tests, release build,
+  and temporary-root installer acceptance pass, including settings discovery,
+  reinstall/upgrade preservation, uninstall, and unchanged persistent PATH.
+  Linux/macOS native execution was not repeated for this change.
+
 ### 2026-10-19 Add a configurable self-extracting installer and transient locks
 
 - Add dotask build/create-filekeep-installer tasks and tracked doinstall adapters

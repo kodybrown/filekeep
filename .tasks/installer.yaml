@@ -58,7 +58,7 @@ runtime:
       group-index: 5
   settings-files:
     - source: defaults/filekeep.yaml
-      destination: '${config-home}/filekeep/settings.yaml'
+      destination: '${app-data}/filekeep/settings.yaml'
       format: yaml
       if-exists: preserve
       set:
